@@ -1,0 +1,23 @@
+[package]
+name = "loki-migration"
+edition.workspace = true
+version.workspace = true
+
+[features]
+default = ["postgres"]
+postgres = ["batch-ops"]
+batch-ops = []
+
+[dependencies]
+anyhow.workspace = true
+bon.workspace = true
+chrono.workspace = true
+tokio-postgres.workspace = true
+deadpool-postgres.workspace = true
+mockall.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tower-http.workspace = true
+
+[dev-dependencies]
+test-log.workspace = true

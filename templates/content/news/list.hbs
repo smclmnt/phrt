@@ -1,0 +1,40 @@
+<header>
+  <h2>News</h2>
+  <p>
+    Create, Edit and Update the news articles.
+  </p>
+</header>
+
+<ul>
+  {{#each news}}
+    <li>
+      <article>
+        <h3>{{title}}</h3>
+        <small>{{url}}</small>
+        {{#if notes}}
+          <div>{{notes}}</div>
+        {{/if}}
+        <footer
+          style="display: flex; flex-direction: row; gap:1em; justify-content:flex-start"
+        >
+          <form action="/admin/news/save" method="post" style="flex-grow:0">
+            <footer>
+              <input type="hidden" name="id" value="{{id}}" />
+              <button type="submit">edit</button>
+            </footer>
+          </form>
+          <a style="flex-grow:0" href="#delete{{id}}">delete</a>
+        </footer>
+      </article>
+    </li>
+  {{/each}}
+</ul>
+
+<footer style="margin-top:2em">
+  <form method="POST" action="/news/admin/save">
+    <footer>
+      <button type="submit">create</button>
+      <input type="hidden" name="is_new" value="true" />
+    </footer>
+  </form>
+</footer>

@@ -1,0 +1,13 @@
+services:
+  server-release:
+    build:
+      context: ../
+      dockerfile: ./build/release.dockerfile
+      target: release
+    ports:
+      - 8080:8080
+    environment:
+      - RUST_BACKTRACE=full
+      - RUST_LOG=phrt=debug
+      - PORT=8080
+      - DATABASE_URL=postgresql://neondb_owner:npg_51dhUQgklmBo@ep-hidden-feather-aasp8wm4-pooler.westus3.azure.neon.tech/phrt?sslmode=require&channel_binding=require

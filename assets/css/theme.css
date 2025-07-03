@@ -1,0 +1,15 @@
+body {
+  --flow-background: rgba(220, 220, 220);
+  --primary-text-color: rgb(0, 0, 0);
+  --secondary-text-color: rgba(0, 0, 0, 0.8);
+  --border-color: rgba(0, 0, 0, 0.6);
+  --chrome-bg: rgba(0, 0, 0, 0.25);
+
+    --menu-link: var(--secondary-text-color)
+    --menu-link-hover: var(--primary-text-color)
+    --menu-hover: rgba(0,0,0,.1);
+
+  /* borders and padding */
+  --border-thin: 1px solid var(--border-color);
+  --border-thick: 2px solid var(--border-color);
+}

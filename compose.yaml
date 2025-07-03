@@ -1,0 +1,51 @@
+services:
+  server:
+    build:
+      context: .
+      target: development
+      dockerfile: ./build/dev.dockerfile
+    ports:
+      - 5000:5000
+    develop:
+        watch:
+          - action: sync
+            path: ./src
+            target: /usr/phrt/src
+          - action: rebuild
+            path: ./Cargo.toml
+          - action: sync+restart
+            path: ./templates
+            target: /usr/phrt/templates
+          - action: sync
+            path: ./assets
+            target: /usr/phrt/assets
+          - action: sync
+            path: ./crates
+            target: /usr/phrt/crates
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:phrt-pwd@db/phrt
+      - PORT=5000
+      - RUST_LOG=debug,tokio_postgres=error,loki_migration=info
+      - PORT=5000
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=phrt
+      - POSTGRES_PASSWORD=phrt-pwd
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:

@@ -1,0 +1,179 @@
+html,
+body,
+div,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+form,
+fieldset,
+caption,
+table,
+tr,
+td,
+th,
+address,
+blockquote,
+img {
+  margin: 0;
+  padding: 0;
+}
+
+img,
+fieldset,
+object {
+  border: none;
+}
+
+ul {
+  list-style: none;
+}
+
+*,
+*:after,
+*:before {
+  flex: 1 0 auto;
+  /* safari bugfix */
+  box-sizing: border-box;
+  font-family: "noto sans", sans-serif;
+}
+
+button,
+select,
+textarea,
+input {
+  font-family: "noto sans", sans-serif;
+}
+
+button,
+label {
+  cursor: pointer;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--primary-text-color);
+  background-color: var(--flow-background);
+}
+
+body > header {
+  border-bottom: 1px solid #033030;
+  flex-grow: 0;
+  background-color: var(--chrome-bg);
+}
+
+body > main {
+  max-width: min(100%, 40rem);
+  padding: 2rem;
+  flex-grow: 1;
+  justify-content: stretch;
+}
+
+body > footer {
+  border-top: 1px solid #030303;
+  padding: 2rem;
+  flex-grow: 0;
+  background-color: var(--chrome-bg);
+}
+
+body > main > form > fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+body > main > form > fieldset > label {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+body > main > form > fieldset > label > small {
+  padding: 0 1em;
+  padding-top: 0.25em;
+}
+
+body > main > form > header {
+  margin-bottom: 2rem;
+}
+
+body > main > form > header.errors {
+  border: 1px solid darkred;
+  color: darkred;
+  background-color: rgba(225, 0, 0, 0.1);
+  padding: 1em;
+  margin: 1em 0;
+}
+
+body > main > form > footer {
+  margin-top: 2rem;
+}
+
+/* primary header */
+#top {
+  padding: 0 0.75rem;
+}
+
+#top h1 {
+  font-size: 2rem;
+}
+
+#top h1 ~ * {
+  flex-grow: 0;
+}
+
+#top a {
+  text-decoration: none;
+}
+
+#top nav {
+  margin: 0.75rem 0;
+}
+
+#top nav ul {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+#top nav li {
+  list-style: none;
+  flex-grow: 0;
+}
+
+#top li a {
+  padding: 0.2rem 0.75rem;
+  transition: 0.2s;
+  font-size: 1.1rem;
+  display: inline-block;
+  position: relative;
+  border-top: var(--border-thin);
+  border-bottom: var(--border-thin);
+  border-color: transparent;
+  color: var(--menu-link);
+}
+
+#top li a:hover,
+#top li a:focus {
+  transform: scale(1.25);
+  color: var(--menu-link-hover-hover);
+  border-color: var(--menu-link-hover);
+  background-color: var(--meu-hover);
+}

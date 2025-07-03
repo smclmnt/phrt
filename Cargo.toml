@@ -1,0 +1,65 @@
+[package]
+name = "phrt"
+version.workspace = true
+edition.workspace = true
+
+[workspace]
+members = ["crates/loki", "crates/loki-migration"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+version = "0.2.0"
+
+[workspace.dependencies]
+anyhow = "1.0.98"
+axum = "0.8.4"
+bon = "3.6.4"
+chrono = "0.4.41"
+deadpool-postgres = "0.14.1"
+handlebars = { git = "https://github.com/smclmnt/handlebars-rust.git", features = [
+    "string_helpers",
+    "markdown_helpers",
+] }
+mockall = { version = "0.13.1", features = [] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+tokio = { version = "1.45.1", features = ["full"] }
+tokio-postgres = { version = "0.7.13", features = [
+    "with-chrono-0_4",
+    "with-serde_json-1",
+    "with-uuid-1",
+] }
+tower = "0.5.2"
+tower-http = { version = "0.6.6", features = ["trace", "fs", "timeout"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+rstest = "0.25.0"
+test-log = "0.2.17"
+
+
+[dependencies]
+anyhow.workspace = true
+axum.workspace = true
+bon.workspace = true
+chrono.workspace = true
+clap = { version = "4.5.40", features = ["env", "derive"] }
+deadpool-postgres = "0.14.1"
+handlebars.workspace = true
+mockall.workspace = true
+loki-migration = { path = "./crates/loki-migration" }
+loki = { path = "./crates/loki" }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tokio-postgres.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+postgres-from-row = "0.5.2"
+tera = "1.20.0"
+
+[dev-dependencies]
+rstest.workspace = true
+test-log.workspace = true

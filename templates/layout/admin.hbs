@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lange="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,height=device-height,initial-scale=1"
+    />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0&iconnames=menu" />
+    <link rel="stylesheet" href="/assets/css/theme.css" type="text/css" media="print,screen" />
+    <link
+      rel="stylesheet"
+      href="/assets/css/site.css"
+      media="screen"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/assets/css/icons.css" type="text/css" media="print,screen" />
+  </head>
+  <body>
+    <main>
+        {{#if content_template}}
+            {{> (lookup this "content_template")}}
+        {{/if}}
+    </main>
+  </body>
+  </html>

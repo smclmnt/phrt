@@ -1,0 +1,10 @@
+{
+    "title": "Home",
+    "description": "description metadata",
+    "keywords": [
+        "keyword1",
+        "keyword2",
+        "dupe",
+        "CAPS"
+    ]
+}

@@ -1,0 +1,52 @@
+{% if news_item.id %}
+  <h2>create news item</h2>
+{% else %}
+  <h2>edit news item</h2>
+{% endif %}
+
+<form method="post" class="js-form" action="save">
+  <header class="errors">
+    <ul>
+      {% for error in errors %}
+        <li>{{error}}</li>
+      {% endfor %}
+    </ul>
+  </header>
+  <fieldset>
+    <label>Title:<br />
+      <input
+        type="text"
+        name="title"
+        placeholder="<title>"
+        autofocus
+        value="{{newsItem.title}}"
+        required
+      />
+    </label>
+
+    <label>Location:<br />
+      <input
+        type="url"
+        name="url"
+        placeholder="<link>"
+        value="{{newsItem.url}}"
+      />
+    </label>
+
+    <label>Notes:<br />
+      <textarea rows="6" name="notes">{{newsItem.notes}}</textarea>
+      <small>
+        <a href="https://spec.commonmark.org/">CommonMark</a>
+        is supported for formatting.
+      </small>
+    </label>
+  </fieldset>
+  <footer>
+    <button type="submit" value="preview" name="action">preview</button>
+    <button type="submit" value="delete" name="action">delete</button>
+    <button type="submit" value="save" name="action">save</button>
+    {% if newsItem.id %}
+      <input type="hidden" name="id" value="{{newsItem.id}}" />
+    {% endif %}
+  </footer>
+</form>

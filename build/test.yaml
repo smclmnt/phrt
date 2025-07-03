@@ -1,0 +1,19 @@
+services:
+  server-test:
+    build:
+      context: ../
+      dockerfile: ./build/test.dockerfile
+      target: test
+    develop:
+      watch:
+        - action: sync
+          target: /usr/phrt/src
+          path: ../src
+        - action: sync
+          target: /usr/phrt/crates
+          path: ../crates
+        - action: sync
+          target: /usr/phrt/Cargo.toml
+          path: ../Cargo.toml
+    environment:
+      - RUST_LOG=phrt=trace,error
