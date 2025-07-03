@@ -17,10 +17,7 @@ axum = "0.8.4"
 bon = "3.6.4"
 chrono = "0.4.41"
 deadpool-postgres = "0.14.1"
-handlebars = { git = "https://github.com/smclmnt/handlebars-rust.git", features = [
-    "string_helpers",
-    "markdown_helpers",
-] }
+handlebars = "6.3.2"
 mockall = { version = "0.13.1", features = [] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
@@ -59,6 +56,7 @@ tracing.workspace = true
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 postgres-from-row = "0.5.2"
 tera = "1.20.0"
+markdown = "1.0.0"
 
 [dev-dependencies]
 rstest.workspace = true

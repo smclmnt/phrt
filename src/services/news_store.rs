@@ -52,7 +52,7 @@ impl NewsStore {
         }
     }
 
-    pub async fn update(&self, news_item: &NewsItem) -> Result<()> {
+    pub async fn update(&self, news_item: &NewsItem) -> Result<NewsItem> {
         let client = self.database_pool.get().await?;
         client
             .execute(
@@ -75,7 +75,7 @@ impl NewsStore {
             )
             .await
             .with_context(|| format!("failed to insert news item = {news_item:?}"))
-            .map(|_| ())
+            .map(|_| news_item.clone())
     }
 
     pub async fn create(&self, news_item: &NewsItem) -> Result<NewsItem> {
@@ -106,12 +106,25 @@ impl NewsStore {
         Ok(item)
     }
 
-    pub async fn delete(&self, id: u32) -> Result<()> {
+    pub async fn delete(&self, id: i32) -> Result<()> {
         let client = self.database_pool.get().await?;
         client
             .execute("DELETE FROM news WHERE id = $1", &[&id])
             .await
             .with_context(|| format!("failed to delete news item id={id}"))?;
         Ok(())
+    }
+}
+
+impl NewsItem {
+    /// Create a new item
+    pub fn for_create() -> Self {
+        Self::builder()
+            .id(None)
+            .title(String::default())
+            .notes(None)
+            .url(None)
+            .hidden(false)
+            .build()
     }
 }

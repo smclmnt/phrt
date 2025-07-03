@@ -1,0 +1,11 @@
+{% macro render_news_item(news_item) %}
+    <article>
+        <header>
+            <h2>{{news_item.title}}</h2>
+            <small>{{news_item.url}}</small>
+        </header>
+        {%if news_item.notes is string %}
+            <div>{{news_item.notes | markdown }}</div>
+        {% endif %}
+    </article>
+{% endmacro render_news_item %}

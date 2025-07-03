@@ -2,8 +2,10 @@
     "cSpell.words": [
         "chrono",
         "deadpool",
+        "endmacro",
         "phrt",
         "rstest",
-        "serde"
+        "serde",
+        "tera"
     ]
 }

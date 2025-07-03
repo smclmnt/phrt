@@ -31,7 +31,7 @@ services:
       - PORT=5000
 
   db:
-    image: postgres
+    image: postgres:latest
     restart: always
     user: postgres
     volumes:

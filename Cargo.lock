@@ -807,12 +807,11 @@ dependencies = [
 [[package]]
 name = "handlebars"
 version = "6.3.2"
-source = "git+https://github.com/smclmnt/handlebars-rust.git#07f7baae67359d20f61ff025423c9019f7205670"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "759e2d5aea3287cb1190c8ec394f42866cb5bf74fcbf213f354e3c856ea26098"
 dependencies = [
  "derive_builder",
- "heck",
  "log",
- "markdown",
  "num-order",
  "pest",
  "pest_derive",
@@ -1402,6 +1401,7 @@ dependencies = [
  "handlebars",
  "loki",
  "loki-migration",
+ "markdown",
  "mockall",
  "postgres-from-row",
  "rstest",

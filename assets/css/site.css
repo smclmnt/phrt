@@ -177,3 +177,13 @@ body > main > form > footer {
   border-color: var(--menu-link-hover);
   background-color: var(--meu-hover);
 }
+
+input.required::after {
+  content: "*";
+  position: relative;
+  color: red;
+  font-size: 4rem;
+  left: 2%;
+  right: 2%;
+  z-index: 2;
+}

@@ -3,8 +3,9 @@ use std::sync::Arc;
 
 use crate::registry::Registry;
 use crate::{Page, PageResult};
-use axum::http::{StatusCode, header};
-use axum::response::{IntoResponse, Response};
+use axum::body::Body;
+use axum::http::{Response, StatusCode, header};
+use axum::response::IntoResponse;
 use serde::Serialize;
 use serde_json::{Map, Value};
 use thiserror::Error;
@@ -23,6 +24,24 @@ impl PageBuilder {
 
     pub fn html(self) -> HtmlPageBuilder {
         HtmlPageBuilder::new(self.registry.clone())
+    }
+
+    pub fn raw_html<H>(&self, html: H) -> Response<Body>
+    where
+        H: Into<String>,
+    {
+        let result = Response::builder()
+            .status(StatusCode::OK)
+            .header(header::CONTENT_TYPE, "text/html")
+            .body(Body::from(html.into()));
+
+        match result {
+            Ok(response) => response,
+            Err(e) => {
+                tracing::error!("failed to generate page from html: {e}");
+                StatusCode::INTERNAL_SERVER_ERROR.into_response()
+            }
+        }
     }
 }
 
@@ -80,7 +99,7 @@ pub enum PageError {
 }
 
 impl IntoResponse for PageError {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> axum::response::Response {
         tracing::error!(
             error = self.to_string(),
             "generating an internal server error page"
