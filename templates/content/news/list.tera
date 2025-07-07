@@ -1,0 +1,55 @@
+{% extends "layout/main.tera" %}
+{% import "content/news/render_item.tera" as news %}
+{% import "content/news/delete_dialog.tera" as delete %}
+{% block title %}Manage News Articles{% endblock title %}
+
+{% block content %}
+<section>
+    <header>
+        <h2>Manage News Articles</h2>
+        <small>
+            Create, Edit and Update the news articles.
+        </small>
+    </header>
+    <br>
+
+    <ul style="display:flex; flex-direction: column; gap: 1em;justify-content:stretch;">
+        {% for article in articles %}
+        <li style="margin-bottom:2rem">
+            <article style="border:1px solid slateblue;padding:.5em;overflow:hidden" {%- if article.hidden%}
+                class="hidden" {% endif -%}>
+                <h3>{{article.title}}</h3>
+                <small>{{article.url}}</small>
+                {% if article.notes %}
+                <div>
+                    {{- article.notes | markdown -}}
+                </div>
+                {% endif %}
+                <footer style="display: flex; flex-direction: row; gap:1em; justify-content:flex-start;margin-top:1rem">
+                    <form method="post" style="flex-grow:0">
+                        <footer>
+                            <input type="hidden" name="id" value="{{article.id}}" />
+                            <button type="submit" name="action" value="update">edit</button>
+                        </footer>
+                    </form>
+                    <a style="flex-grow:0" href="#delete-{{article.id}}">delete</a>
+                </footer>
+            </article>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <footer style="margin-top:2em">
+        <form method="post">
+            <footer>
+                <button type="submit" name="action" value="create">create</button>
+            </footer>
+        </form>
+    </footer>
+</section>
+
+{% for article in articles %}
+{{ delete::delete_article(article = article)}}
+{% endfor %}
+
+{% endblock content %}

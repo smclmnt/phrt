@@ -5,13 +5,16 @@ use crate::migrations::DATABASE_REVISIONS;
 use anyhow::{Context, Result};
 use deadpool_postgres::{Manager, Pool};
 use loki_migration::MigrationBuilder;
-use tokio_postgres::NoTls;
+
 use tracing::instrument;
 
 #[instrument(level = "info", skip_all)]
 pub async fn initialize_database(config: &Config) -> Result<Pool> {
+    let builder = openssl::ssl::SslConnector::builder(openssl::ssl::SslMethod::tls())
+        .expect("failed to make connect");
+    let tls = postgres_openssl::MakeTlsConnector::new(builder.build());
     let database_config = tokio_postgres::Config::from_str(&config.database_url)?;
-    let pool = Pool::builder(Manager::new(database_config, NoTls))
+    let pool = Pool::builder(Manager::new(database_config, tls))
         .build()
         .with_context(|| "failed to create the database pool")?;
     exeute_migrations(&config, &pool).await?;

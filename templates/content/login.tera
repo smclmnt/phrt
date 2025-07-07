@@ -1,0 +1,33 @@
+{% extends "layout/main.tera" %}
+
+{% block content %}
+<section style="flex-grow:1; max-width:unset;justify-content: center; display:flex">
+    <form method="post" id="login">
+        <header>
+            <h2>Sign-in</h2>
+        </header>
+        {% if login_error is defined and login_error == true %}
+        <div class=" errors">
+            Invalid email address or password please try again
+        </div>
+        {% endif %}
+        <fieldset>
+            <label>
+                Email:<br>
+                <input type="email" name="email" autocapitalize="off" autocomplete="email" autocorrect="off" autofocus
+                    required value="{{email | default(value = '')}}">
+            </label>
+            <label>
+                Password:<br>
+                <input type="password" name="password" required>
+            </label>
+        </fieldset>
+        <footer>
+            <button type="submit" name="action" value="login">Signin</button>
+            {% if location is defined %}
+            <input type="hidden" name="location" value="{{location}}">
+            {% endif %}
+        </footer>
+    </form>
+</section>
+{% endblock content %}

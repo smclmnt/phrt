@@ -28,5 +28,6 @@
 **/values.dev.yaml
 /bin
 /target
+/build
 LICENSE
 README.md

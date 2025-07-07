@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize, Builder)]
 #[builder(on(_, required))]
 pub struct NewsItem {
-    pub id: Option<i32>,
+    pub id: Option<i64>,
     pub title: String,
     pub url: Option<String>,
     pub notes: Option<String>,
@@ -20,7 +20,38 @@ pub struct NewsStore {
     database_pool: Pool,
 }
 
-/// Database agnsotic storage for news items, also provides a mock for testing
+/*
+todo future:
+
+pub trait Store<T>
+where
+    T: FromRow + std::fmt::Debug + Clone,
+{
+    async fn t_delete(&self, item: &T) -> Result<()>;
+    async fn t_create(&self, item: &T) -> Result<T>;
+    async fn t_update(&self, item: &T) -> Result<T>;
+    async fn t_all(&self) -> Result<Vec<T>>;
+}
+
+trait Identity {
+    type PrimaryKey;
+    fn has_id(&self) -> bool;
+}
+
+pub trait StoreExt<T>: Store<T>
+where
+    T: FromRow + std::fmt::Debug + Clone + Identity,
+{
+    async fn t_save(&self, item: &T) -> Result<T> {
+        if item.has_id() {
+            self.t_update(item).await
+        } else {
+            self.t_create(item).await
+        }
+    }
+}*/
+
+/// Database agnostic storage for news items, also provides a mock for testing
 #[automock]
 impl NewsStore {
     pub async fn all(&self) -> Result<Vec<NewsItem>> {
@@ -37,7 +68,7 @@ impl NewsStore {
             })
     }
 
-    pub async fn get(&self, id: u32) -> Result<Option<NewsItem>> {
+    pub async fn get(&self, id: i64) -> Result<Option<NewsItem>> {
         let client = self.database_pool.get().await?;
         match client
             .query_opt("SELECT * FROM news WHERE id = $1", &[&id])
@@ -46,13 +77,13 @@ impl NewsStore {
         {
             Some(row) => Ok(Some(
                 NewsItem::try_from_row(&row)
-                    .map_err(|e| anyhow!("failed to deserialzie row: {e}"))?,
+                    .map_err(|e| anyhow!("failed to deserialize row: {e}"))?,
             )),
             None => Ok(None),
         }
     }
 
-    pub async fn update(&self, news_item: &NewsItem) -> Result<NewsItem> {
+    async fn update(&self, news_item: &NewsItem) -> Result<NewsItem> {
         let client = self.database_pool.get().await?;
         client
             .execute(
@@ -78,7 +109,7 @@ impl NewsStore {
             .map(|_| news_item.clone())
     }
 
-    pub async fn create(&self, news_item: &NewsItem) -> Result<NewsItem> {
+    async fn create(&self, news_item: &NewsItem) -> Result<NewsItem> {
         let client = self.database_pool.get().await?;
         let inserted_row = client
             .query_one(
@@ -98,7 +129,7 @@ impl NewsStore {
             )
             .await
             .with_context(|| {
-                format!("failed to isnert news item into database item={news_item:?}")
+                format!("failed to insert news item into database item={news_item:?}")
             })?;
 
         let mut item = news_item.clone();
@@ -106,13 +137,30 @@ impl NewsStore {
         Ok(item)
     }
 
-    pub async fn delete(&self, id: i32) -> Result<()> {
+    pub async fn delete(&self, id: i64) -> Result<()> {
         let client = self.database_pool.get().await?;
         client
             .execute("DELETE FROM news WHERE id = $1", &[&id])
             .await
             .with_context(|| format!("failed to delete news item id={id}"))?;
         Ok(())
+    }
+
+    pub async fn save(&self, news_item: &NewsItem) -> Result<NewsItem> {
+        match news_item.id {
+            Some(_id) => {
+                tracing::debug!(
+                    article = ?news_item,
+                    "updating existing article {}",
+                    news_item.id.clone().unwrap_or(0)
+                );
+                self.update(&news_item).await
+            }
+            None => {
+                tracing::debug!(article = ?news_item, "creating new article");
+                self.create(&news_item).await
+            }
+        }
     }
 }
 

@@ -72,49 +72,65 @@ body {
   background-color: var(--flow-background);
 }
 
-body > header {
+body>header {
   border-bottom: 1px solid #033030;
   flex-grow: 0;
   background-color: var(--chrome-bg);
 }
 
-body > main {
-  max-width: min(100%, 40rem);
-  padding: 2rem;
+body>main {
+  max-width: min(100%, 45rem);
+  margin: 2rem;
   flex-grow: 1;
   justify-content: stretch;
+  justify-self: stretch;
+  align-self: center;
 }
 
-body > footer {
+body>main>section,
+body>main article {
+  margin-bottom: 2rem;
+}
+
+body>main>header {
+  margin-top: 1rem;
+}
+
+body>footer {
   border-top: 1px solid #030303;
   padding: 2rem;
   flex-grow: 0;
   background-color: var(--chrome-bg);
+  justify-self: stretch;
 }
 
-body > main > form > fieldset {
+body>main>form>fieldset,
+form#login>fieldset {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-body > main > form > fieldset > label {
+body>main>form>fieldset>label,
+form#login>fieldset>label {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
 }
 
-body > main > form > fieldset > label > small {
+body>main>form>fieldset>label>small {
   padding: 0 1em;
   padding-top: 0.25em;
 }
 
-body > main > form > header {
+body>main>form>header,
+form#login>header {
   margin-bottom: 2rem;
 }
 
-body > main > form > header.errors {
+body>main>form>header.errors,
+form#login .errors {
   border: 1px solid darkred;
   color: darkred;
   background-color: rgba(225, 0, 0, 0.1);
@@ -122,11 +138,24 @@ body > main > form > header.errors {
   margin: 1em 0;
 }
 
-body > main > form > footer {
-  margin-top: 2rem;
+body>footer {
+  margin-top: 2rem 1rem;
+  display: flex;
+  flex-direction: row;
+  color: var(--secondary-text-color);
+  font-size: .8rem;
+}
+
+body>footer>* {
+  flex-grow: 0;
+}
+
+body>footer *:first-child {
+  flex-grow: 1;
 }
 
 /* primary header */
+
 #top {
   padding: 0 0.75rem;
 }
@@ -135,7 +164,7 @@ body > main > form > footer {
   font-size: 2rem;
 }
 
-#top h1 ~ * {
+#top h1~* {
   flex-grow: 0;
 }
 
@@ -164,9 +193,6 @@ body > main > form > footer {
   font-size: 1.1rem;
   display: inline-block;
   position: relative;
-  border-top: var(--border-thin);
-  border-bottom: var(--border-thin);
-  border-color: transparent;
   color: var(--menu-link);
 }
 
@@ -174,8 +200,8 @@ body > main > form > footer {
 #top li a:focus {
   transform: scale(1.25);
   color: var(--menu-link-hover-hover);
-  border-color: var(--menu-link-hover);
   background-color: var(--meu-hover);
+  font-weight: bold;
 }
 
 input.required::after {
@@ -186,4 +212,142 @@ input.required::after {
   left: 2%;
   right: 2%;
   z-index: 2;
+}
+
+.modal,
+.modal>.modal-close {
+  position: fixed;
+  top: 110%;
+  left: 110%;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  scroll-behavior: smooth;
+  cursor: default;
+}
+
+.modal {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  flex-direction: column;
+  opacity: 0;
+}
+
+.modal .modal-close>span {
+  position: absolute;
+  right: -100%;
+  bottom: -100%;
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.modal>div,
+form#login {
+  border: var(--border-thick);
+  background-color: var(--flow-background);
+  color: var(--primary-text-color);
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  max-width: min(80%, 40rem);
+  flex-grow: 0;
+  box-shadow: .25rem .25rem .5rem gray;
+}
+
+.modal:target {
+  opacity: 1;
+  transition: opacity .25s;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.modal>div>header,
+form#login>header {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin-bottom: 1rem;
+}
+
+.modal>div>header .modal-close {
+  flex-grow: 0;
+  text-decoration: none;
+}
+
+.modal>div>footer,
+form#login>footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.actions>*,
+form#login>footer>* {
+  flex-grow: 0;
+}
+
+.icon-close::after {
+  content: 'X';
+  font-size: 1rem;
+  color: var(--primary-text-color);
+}
+
+form#login {
+  margin-top: min(10rem, 20%);
+  min-width: min(80%, 30rem);
+  box-shadow: unset;
+  border: var(--border-thin);
+}
+
+form#login .errors,
+body>main>section p:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+#mailing-list {
+  background-color: var(--mailing-list-background);
+  color: var(--mailing-list-text);
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+#mailing-list>header {
+  display: block;
+}
+
+#mailing-list>form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+#mailing-list>header p {
+  color: var(--mailing-list-header);
+  margin-bottom: 1rem;
+}
+
+#mailing-list>form>fieldset {
+  flex-grow: 1;
+}
+
+#mailing-list>form>fieldset input {
+  width: 100%;
+}
+
+#mailing-list>form>footer {
+  flex-grow: 0;
 }

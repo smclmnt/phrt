@@ -2,27 +2,27 @@ use std::{str::FromStr, sync::Arc};
 
 use axum::{
     Extension, Form, Router,
-    http::Uri,
-    response::{ErrorResponse, IntoResponse, Redirect, Response},
+    body::Body,
+    http::{StatusCode, Uri, header},
+    response::{IntoResponse, Redirect, Response},
     routing::{get, post},
 };
 use deadpool_postgres::Pool;
 use loki::Cache;
-use loki::{PageBuilder, PageResult};
 use serde::{Deserialize, Serialize};
-use tera::Tera;
+use tera::{Context, Tera};
+use tracing::instrument;
 
 use crate::services::{NewsItem, NewsStore};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NewsForm {
-    id: Option<i32>,
+    id: Option<i64>,
     title: Option<String>,
     url: Option<String>,
     notes: Option<String>,
     hidden: Option<bool>,
     action: Option<String>,
-    is_new: Option<bool>,
 }
 
 impl NewsForm {
@@ -48,7 +48,6 @@ impl NewsForm {
                 Err(e) => result.push(format!("The provided location is invalid '{e}'")),
             },
             None => result.push("A location for news article is required".to_owned()),
-            _ => {}
         };
 
         if result.is_empty() {
@@ -62,11 +61,11 @@ impl NewsForm {
 impl From<NewsForm> for NewsItem {
     fn from(value: NewsForm) -> Self {
         NewsItem::builder()
-            .id(None)
-            .title(value.title.unwrap())
+            .id(value.id)
+            .title(value.title.unwrap_or_default())
             .url(value.url)
             .notes(value.notes)
-            .hidden(value.hidden.unwrap_or(false))
+            .hidden(value.hidden.is_some_and(|hidden| hidden))
             .build()
     }
 }
@@ -85,82 +84,113 @@ pub fn news_routes(database_pool: &Pool) -> Router {
         .layer(Extension(news_store.clone()));
 
     let admin_routes = Router::new()
-        .route("/admin", get(admin_news))
-        .route("/admin/save", post(news_admin_save))
+        .route("/admin", get(list_news))
+        .route("/admin", post(manage_mews))
         .layer(Extension(news_store.clone()));
 
     user_routes.merge(admin_routes)
 }
 
+fn tera_response<T>(tera: &Tera, template: T, context: &Context) -> Response
+where
+    T: AsRef<str>,
+{
+    match tera.render(template.as_ref(), context) {
+        Ok(html) => {
+            tracing::debug!(
+                context = ?context,
+                "rendering template '{}'",
+                template.as_ref()
+            );
+            match Response::builder()
+                .header(header::CONTENT_TYPE, "text/html")
+                .body(Body::from(html))
+            {
+                Ok(response) => response,
+                Err(e) => {
+                    tracing::error!(
+                        error = ?e,
+                        context = ?context,
+                        template = template.as_ref(),
+                        "failed to generate response: {e}"
+                    );
+                    StatusCode::INTERNAL_SERVER_ERROR.into_response()
+                }
+            }
+        }
+        Err(e) => {
+            tracing::error!(
+                error = ?e,
+                context = ?context,
+                template = template.as_ref(),
+                "{e}"
+            );
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
 async fn news(
-    Extension(page_builder): Extension<PageBuilder>,
     Extension(news_store): Extension<Arc<NewsStore>>,
-) -> PageResult {
+    Extension(tera): Extension<Arc<Tera>>,
+) -> std::result::Result<Response, StatusCode> {
     let news = NEWS_CACHE
-        .try_fetch(async move { news_store.all().await })
+        .try_fetch(async move {
+            news_store.all().await.map(|articles| {
+                articles
+                    .into_iter()
+                    .filter(|article| !article.hidden)
+                    .collect::<Vec<NewsItem>>()
+            })
+        })
         .await
         .unwrap_or_default();
 
-    tracing::debug!("--> news : {:?}", news);
+    let mut context = Context::new();
+    context.insert("news", &news);
 
-    page_builder
-        .html()
-        .layout("templates/layout/main")
-        .template("templates/content/news")
-        .value("news", news)
-        .send()
+    Ok(tera_response(&tera, "content/news.tera", &context))
 }
 
-async fn admin_news(
-    Extension(page_builder): Extension<PageBuilder>,
+async fn list_news(
     Extension(news_store): Extension<Arc<NewsStore>>,
-) -> PageResult {
-    let news = news_store
-        .all()
-        .await
-        .inspect_err(|e| tracing::error!("failed to retrieve news from database: {e}"))
-        .unwrap_or_default();
-
-    page_builder
-        .html()
-        .layout("templates/layout/main")
-        .template("templates/content/news/list")
-        .value("news", news)
-        .send()
+    Extension(tera): Extension<Arc<Tera>>,
+) -> std::result::Result<Response, StatusCode> {
+    let news = news_store.all().await.unwrap_or_default();
+    let mut context = Context::new();
+    context.insert("articles", &news);
+    Ok(tera_response(&tera, "content/news/list.tera", &context))
 }
-pub async fn news_admin_save(
-    Extension(page_builder): Extension<PageBuilder>,
+
+#[instrument(level = "info", skip(news_store, tera))]
+pub async fn manage_mews(
     Extension(news_store): Extension<Arc<NewsStore>>,
+    Extension(tera): Extension<Arc<Tera>>,
     Form(news_form): Form<NewsForm>,
 ) -> Response {
-    tracing::debug!(
-        form = ?news_form,
-        "processing news article change"
-    );
-
-    let mut tera = Tera::new("./templates/**/*.tera").unwrap();
-    tera.autoescape_on(vec![".tera"]);
-    tera.register_filter("markdown", MarkdownFilter);
-
     let mut context = tera::Context::new();
-    let news_item: NewsItem = news_form.clone().into();
-    context.insert("newsItem", &news_item);
 
     match news_form.action.as_ref().map(String::as_str) {
         Some("preview") => {
-            context.insert("preview_item", &news_item);
+            let preview_item: NewsItem = news_form.into();
+            context.insert("preview_item", &preview_item);
+            context.insert("newsItem", &preview_item);
         }
-        Some("save") if news_form.id.is_some() => {
+        Some("save") => {
+            let news_item: NewsItem = news_form.clone().into();
+            context.insert("newsItem", &news_item);
             let errors = news_form.validate();
+
             if errors.is_some() {
                 context.insert("errors", &errors);
             } else {
-                match news_store.update(&news_form.into()).await {
+                match news_store.save(&news_form.into()).await {
                     Ok(news_item) => {
                         tracing::info!(
                             article = ?news_item,
-                            "updated news item"
+                            "saved news article"
                         );
+                        NEWS_CACHE.clear().await;
                         return Redirect::to("/news/admin").into_response();
                     }
                     Err(e) => {
@@ -170,21 +200,23 @@ pub async fn news_admin_save(
             }
         }
         Some("create") => {
-            let errors = news_form.validate();
-            if errors.is_some() {
-                context.insert("errors", &errors);
-            } else {
-                match news_store.create(&news_form.into()).await {
-                    Ok(news_item) => {
-                        tracing::info!(
-                            article = ?news_item,
-                            "created news item"
-                        );
-                        return Redirect::to("/news/admin").into_response();
-                    }
-                    Err(e) => {
-                        context.insert("error_message", &e.to_string());
-                    }
+            context.insert("newsItem", &NewsItem::for_create());
+        }
+        Some("update") => {
+            let Some(id) = news_form.id else {
+                tracing::error!("request was missing article identifier");
+                return StatusCode::NOT_FOUND.into_response();
+            };
+
+            match news_store.get(id).await {
+                Ok(Some(news_item)) => context.insert("newsItem", &news_item),
+                Ok(None) => {
+                    tracing::error!("a request for invalid article '{id}' was submitted");
+                    return StatusCode::NOT_FOUND.into_response();
+                }
+                Err(e) => {
+                    tracing::error!("failed to retrieve article {id}: {e}");
+                    return StatusCode::INTERNAL_SERVER_ERROR.into_response();
                 }
             }
         }
@@ -196,6 +228,8 @@ pub async fn news_admin_save(
                         "deleted news article {}",
                         news_form.id.unwrap_or_default()
                     );
+                    NEWS_CACHE.clear().await;
+                    return Redirect::to("/news/admin").into_response();
                 }
                 Err(e) => {
                     context.insert("error_message", &e.to_string());
@@ -211,24 +245,16 @@ pub async fn news_admin_save(
         }
     }
 
-    let tera = tera.render("content/news/edit.tera", &context);
-
-    tracing::debug!(
-        context = ?context,
-        "tera :: -> {:?}",
-        "rendered news article edit template"
-    );
-
-    page_builder.raw_html(tera.unwrap()).into_response()
+    tera_response(&tera, "content/news/edit.tera", &context)
 }
 
-struct MarkdownFilter;
+pub struct MarkdownFilter;
 
 impl tera::Filter for MarkdownFilter {
     fn filter(
         &self,
         value: &tera::Value,
-        args: &std::collections::HashMap<String, tera::Value>,
+        _args: &std::collections::HashMap<String, tera::Value>,
     ) -> tera::Result<tera::Value> {
         match value {
             serde_json::Value::String(markdown_text) => {

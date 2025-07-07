@@ -1,5 +1,16 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
     <meta charset="utf-8" />
+
+    <meta name="description" content="{%- block description %}
+        A road trip based movie exploring the plant medicine movement in Idaho,
+        plant medicine pioneers - activists - and every day people, asking for Idaho
+        to heed the call on plant medicine reform{% endblock description -%}" />
+
+    <meta name="keywords"
+        content="{%- block keywords %}reform, activision, plant medicine, reform, idaho, leo russel,dana beal, prison, movie{% endblock keywords -%}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,16 +24,23 @@
     <link rel="stylesheet" href="/assets/css/site.css" media="screen" type="text/css" />
     <link rel="stylesheet" href="/assets/css/icons.css" type="text/css" media="print,screen" />
 
-    <title>{%- block title -%}{%- endblock title -%} - The Phsyadelic Road Trip</title>
-</head><body>
+
+    <title>{%- block title -%}{%- endblock title -%} - The Psychedelic Road Trip</title>
+</head>
+
+<body>
     <header id="top">
         <a href="/">
             <h1>The Phsyadelic Road Trip</h1>
         </a>
         <nav>
             <ul>
+                <li><a href="/updates">Updates!</a></li>
                 <li><a href="/news">News</a></li>
-                <li><a href="/diary">Diary</a></li>
+                <li><a href="/map">Map</a></li>
+                <li><a href="/donate">Donate</a></li>
+                <li><a href="/volunteer">Volunteer</a></li>
+                <li><a href="/host">Host Us!</a></li>
             </ul>
         </nav>
         <div class="icon_menu"></div>
@@ -31,7 +49,16 @@
         {%- block content %}{% endblock content -%}
     </main>
     <footer>
-        <pre style="font-size: .8rem;font-family: 'Courier New', Courier, monospace">{{ __tera_context |  as_str }}</pre>
+        <section>
+            &copy; The Psychedelic Road Trip, all rights reserved.
+        </section>
+        <section>
+            Written by Leo Russel
+        </section>
+        {% if debug is defined and debug == true %}
+        <pre
+            style="font-size: .8rem;font-family: 'Courier New', Courier, monospace">{{ __tera_context |  as_str }}</pre>
+        {% endif %}
     </footer>
 </body>
 

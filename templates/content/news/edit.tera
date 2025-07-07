@@ -1,13 +1,22 @@
-{% extends "layout/main.tera" %} {% import "content/news/render_item.tera" as
-news %} {%block title %} {% if newsItem.id %} Edit news article {% else %} Add
-news article {% endif %} {% endblock title %} {%block content %} {% if
+{% extends "layout/main.tera" %}
+{% import "content/news/render_item.tera" as news %}
+{% import "content/news/delete_dialog.tera" as delete %}
+{%block title %}
+{% if newsItem.id %}
+Edit news article
+{% else %}
+Add news article
+{% endif %}
+{% endblock title %}
+
+{%block content %} {% if
 newsItem.id %}
 <h2>Edit News Item</h2>
 {% else %}
 <h2>Create News Item</h2>
 {% endif %}
 
-<form method="post" class="js-form" action="save">
+<form method="post" class="js-form">
   {% if error_message is defined | string %}
   <header>
     An error occurred while trying to apply your changes:
@@ -26,65 +35,34 @@ newsItem.id %}
   </header>
   {% endif %}
   <fieldset>
-    <label
-      >Title:<br />
-      <input
-        class="required"
-        type="text"
-        name="title"
-        placeholder="Enter the article title"
-        autofocus
-        value="{{ newsItem.title }}"
-        required
-      />
+    <label>Title:<br />
+      <input class="required" type="text" name="title" placeholder="Enter the article title" autofocus
+        value="{{ newsItem.title }}" required />
     </label>
 
-    <label
-      >Location:<br />
-      <input
-        type="url"
-        name="url"
-        placeholder="Enter the location of the article"
-        value="{{ newsItem.url }}"
-      />
+    <label>Location:<br />
+      <input type="url" name="url" placeholder="Enter the location of the article" value="{{ newsItem.url }}" />
     </label>
 
-    <label
-      >Notes:<br />
-      <textarea
-        wrap="off"
-        rows="8"
-        placeholder="Optional: A brief description of the news article"
-        autocorrect="on"
-        spellcheck="true"
-        autocapitalize="false"
-        name="notes"
-        >{{- newsItem.notes -}}</textarea
-      >
+    <label>Notes:<br />
+      <textarea wrap="off" rows="8" placeholder="Optional: A brief description of the news article" autocorrect="on"
+        spellcheck="true" autocapitalize="false" name="notes">{{- newsItem.notes -}}</textarea>
       <small>
         <a href="https://spec.commonmark.org/">CommonMark</a>
         is supported for formatting, the most commonly used formatting, '*' or
         '_' around text to emphasis it and [text](url) to insert a link.
       </small>
     </label>
-    <div
-      style="
+    <div style="
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         align-items: flex-start;
-      "
-    >
-      <input
-        style="flex-grow: 0"
-        id="hidden"
-        type="checkbox"
-        name="hidden"
-        value="{{ newsItem.hidden | default(value=false) }}"
-      />
+      ">
+      <input style="flex-grow: 0" id="hidden" type="checkbox" name="hidden" {% if newsItem.hidden %}checked{% endif %}
+        value="true" />
       &nbsp;
-      <label for="hidden"
-        >Hide this item<br />
+      <label for="hidden">Hide this item<br />
         <small>
           Hiding this item will remove it from the public news page
         </small>
@@ -92,15 +70,13 @@ newsItem.id %}
     </div>
     {% if preview_item is defined | object %}
     <div>Item Preview:</div>
-    <section
-      style="
+    <section style="
         margin: 0 1rem;
         padding: 1em;
         font-size: 0.8rem;
         border: 1px solid gray;
         background-color: rgba(0, 0, 0, 0.1);
-      "
-    >
+      ">
       <div class="preview">
         {{- news::render_news_item(news_item = preview_item) -}}
       </div>
@@ -110,12 +86,17 @@ newsItem.id %}
   <footer>
     <button type="submit" value="preview" name="action">preview</button>
     {% if newsItem.id %}
-    <button type="submit" value="delete" name="action">delete</button>
+    <a href="#delete-{{newsItem.id}}" name="action">delete</a>
     <button type="submit" value="save" name="action">save</button>
     <input type="hidden" name="id" value="{{ newsItem.id }}" />
     {% else %}
-    <button type="submit" value="create" name="action">create</button>
+    <button type="submit" value="save" name="action">create</button>
     {% endif %}
   </footer>
 </form>
+
+{% if newsItem.id %}
+{{- delete::delete_article(article = newsItem) -}}
+{% endif %}
+
 {% endblock content %}

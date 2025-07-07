@@ -1,0 +1,24 @@
+{% macro delete_article(article) %}
+<form class="modal" action="/news/admin" method="post" id="delete-{{article.id}}">
+    <a href="#" class="modal-close">
+        <span>Close Delete Article</span>
+    </a>
+    <div>
+        <header>
+            <h2>Delete Article?</h2>
+            <a href="#" class="modal-close icon-close">
+                <span hidden>Close Delete Article</span>
+            </a>
+        </header>
+        <p>
+            Are you sure want to delete the article
+            <a href="{{article.url}}" target="_blank"><em>"{{article.title}}"</em></a>?
+        </p>
+        <footer class="actions">
+            <input type="hidden" name="id" value="{{article.id}}">
+            <a href="#">Cancel</a>
+            <button class="danger" type="submit" name="action" value="delete">Delete</button>
+        </footer>
+    </div>
+</form>
+{% endmacro %}

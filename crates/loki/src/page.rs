@@ -76,7 +76,7 @@ impl Page {
                 if let Err(e) = metadata.merge(&template_metadata) {
                     tracing::error!(
                         metadata = ?metadata,
-                        defaul = ?default_metadata,
+                        default = ?default_metadata,
                         template = ?template_metadata,
                         error = ?e,
                         "failed to merge template metadata into metadata: {e}"
@@ -134,15 +134,6 @@ impl IntoResponse for Page {
                 String::from("content_template"),
                 Value::String(template.clone()),
             );
-
-            let mut v = values.clone();
-            v.insert(
-                "errors".to_owned(),
-                Value::String(String::from("------>why<--------")),
-            );
-            let jv = Value::Object(v);
-            let x = self.registry.handlebars().render(template, &values);
-            tracing::error!("------> {x:?}");
         }
 
         let body = self
@@ -155,7 +146,7 @@ impl IntoResponse for Page {
             layout = self.layout,
             template = ?self.template,
             values = ?values,
-            "succesfully rendered page"
+            "successfully rendered page"
         );
 
         Response::builder()
@@ -165,7 +156,7 @@ impl IntoResponse for Page {
             .unwrap_or_else(|e| {
                 tracing::error!(
                     template = ?self.template,
-                    layaout = self.layout,
+                    layout = self.layout,
                     error = ?e,
                     "failed to render template"
                 );
@@ -199,7 +190,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn error_respnse_with_message() {
+    async fn error_response_with_message() {
         let response = Page::error()
             .status_code(StatusCode::BAD_REQUEST)
             .error_message("invalid body")
@@ -218,14 +209,14 @@ mod tests {
     fn page_values() {
         let page = Page::builder()
             .value("test", 7)
-            .value("wilma", "flitstone")
+            .value("wilma", "flintstones")
             .layout("test")
             .build();
 
         assert_eq!(
             json!({
                 "test": 7,
-                "wilma": "flitstone",
+                "wilma": "flintstones",
             }),
             page.values.unwrap()
         );

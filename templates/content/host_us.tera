@@ -1,0 +1,7 @@
+{% extends "layout/main.tera" %}
+{% block title %}Host Us!{%endblock title %}
+
+{% block content %}
+<h2>host us</h2>
+
+{% endblock content %}

@@ -31,7 +31,7 @@ impl PostgresRevisionStorage {
                     .execute(
                         r#"
                         CREATE TABLE IF NOT EXISTS migrations (
-                            id SERIAL PRIMARY KEY UNIQUE,
+                            id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                             rev TEXT NOT NULL UNIQUE,
                             timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
                         )
@@ -69,14 +69,14 @@ impl RevisionStorage for PostgresRevisionStorage {
         self.ensure_migrations_table().await?;
 
         let mut client = self.pool.get().await?;
-        let tranction = client.transaction().await?;
+        let transaction = client.transaction().await?;
 
-        tranction
+        transaction
             .batch_execute(sql_query)
             .await
             .with_context(|| format!("failed to execute statements"))?;
 
-        tranction
+        transaction
             .commit()
             .await
             .with_context(|| "failed to commit transaction")?;

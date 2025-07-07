@@ -1,0 +1,7 @@
+{% extends "layout/main.tera" %}
+{% block title %}Donate{%endblock title %}
+
+{% block content %}
+<h2>donate</h2>
+
+{% endblock content %}

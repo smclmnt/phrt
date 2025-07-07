@@ -2,7 +2,11 @@
     "cSpell.words": [
         "chrono",
         "deadpool",
+        "dotenv",
+        "dotenvy",
         "endmacro",
+        "jsonwebtoken",
+        "mockall",
         "phrt",
         "rstest",
         "serde",

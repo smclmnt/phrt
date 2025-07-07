@@ -37,11 +37,8 @@ impl Application {
 
             let asset_path = asset_path.canonicalize().unwrap_or(asset_path.clone());
             tracing::info!("adding assets dir /{assets_path:?} --> {asset_path:?}");
-            let assets_service = ServeDir::new(assets_path);
-            Ok(routes.nest_service(
-                &format!("/{}", assets_path.to_str().unwrap()),
-                assets_service,
-            ))
+            let assets_service = ServeDir::new("./assets");
+            Ok(routes.nest_service("/assets", assets_service))
         })?;
 
         let routes = routes.layer(Extension(PageBuilder::new(registry)));

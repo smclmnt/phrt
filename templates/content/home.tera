@@ -1,0 +1,51 @@
+{% extends "layout/main.tera" %}
+{% block title %}Home{%endblock title %}
+
+{% block content %}
+
+<section>
+    <header>
+        <h2>The Trip</h2>
+    </header>
+    <p>
+        A road trip based movie exploring the plant medicine movement in Idaho,
+        plant medicine pioneers - activists - and every day people, asking for Idaho
+        to heed the call on <em>plant medicine reform</em>.
+    </p>
+    <p>
+        Featuring <em>>Dana Beal</em> (Ibogaine activist facing jail time in Idaho for canabis possession).
+        <em>"Leo" Russel</em>, psychedelic activists in the field of mental heath, Serra, Frank, and others!
+    </p>
+</section>
+
+<section>
+    <header>
+        <h2>Join us in</h2>
+    </header>
+    <p>
+        Touring the state for a two week road trop extravaganza filming real Idahoans
+        who care about natural healing in the state of Idaho.
+    </p>
+</section>
+
+<section id="mailing-list">
+    <header>
+        <h2>Join our mailing list</h2>
+        <p>
+            Join our mailing list to receive updates
+        </p>
+    </header>
+    <form method="post" action="#">
+        <fieldset>
+            <label>
+                Email Address:<br>
+                <input type="email" autocapitalize="off" autocomplete="email" required="true" name="email_address"
+                    value="{{email_address | default(value = '')}}">
+            </label>
+        </fieldset>
+        <footer>
+            <button type="submit" name="action" value="join">Join</button>
+        </footer>
+    </form>
+</section>
+{% endblock content %}

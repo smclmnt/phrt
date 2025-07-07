@@ -1,0 +1,24 @@
+{% extends "layout/main.tera" %}
+{% import "content/news/render_item.tera" as news %}
+{% block title %}News Articles{% endblock title %}
+
+{%block content %}
+<section>
+    <header>
+        <h2>News Articles</h2>
+    </header>
+    {% if news is defined | length %}
+    <ul style="margin-top:1rem">
+        {% for article in news %}
+        <li>
+            {{- news::render_news_item(news_item = article) -}}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty">
+        There are no news articles to display
+    </div>
+    {% endif %}
+</section>
+{% endblock content %}
